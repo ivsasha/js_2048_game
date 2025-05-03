@@ -94,7 +94,7 @@ const renderGame = () => {
   }
 
   // Update score
-  document.querySelector('.game-score').textContent = `Score: ${game.score}`;
+  document.querySelector('.game-score').textContent = `${game.score}`;
 
   const win = document.querySelector('.message-win');
   const lose = document.querySelector('.message-lose');

@@ -76,46 +76,52 @@ class Game {
     this.addRandomTile();
   }
   moveRight() {
-    // Check if the game is in progress
     if (this.status !== 'playing') {
       return;
     }
 
-    // Move tiles right
+    let moved = false;
+
     for (let row = 0; row < this.size; row++) {
-      const newRow = [];
+      const originalRow = [...this.board[row]]; // копія для порівняння
+      const reversedRow = [...originalRow].reverse();
 
-      for (let col = this.size - 1; col >= 0; col--) {
-        if (this.board[row][col] !== 0) {
-          newRow.push(this.board[row][col]);
-        }
-      }
+      // Фільтруємо ненульові
+      const filtered = reversedRow.filter((val) => val !== 0);
 
-      // Merge tiles
-      const mergedRow = [];
+      // Об’єднання
+      const merged = [];
 
-      for (let i = 0; i < newRow.length; i++) {
-        if (newRow[i] === newRow[i + 1]) {
-          mergedRow.push(newRow[i] * 2);
-          this.score += newRow[i] * 2;
+      for (let i = 0; i < filtered.length; i++) {
+        if (filtered[i] === filtered[i + 1]) {
+          merged.push(filtered[i] * 2);
+          this.score += filtered[i] * 2;
           i++;
         } else {
-          mergedRow.push(newRow[i]);
+          merged.push(filtered[i]);
         }
       }
 
-      // Fill the rest of the row with zeros
-      while (mergedRow.length < this.size) {
-        mergedRow.unshift(0);
+      // Дозаповнення нулями
+      while (merged.length < this.size) {
+        merged.push(0);
       }
 
-      // Update the board
-      this.board[row] = mergedRow;
+      // Перевертаємо назад, щоб був "правий" напрямок
+      const newRow = merged.reverse();
+
+      // Оновлюємо, якщо зміни були
+      if (JSON.stringify(originalRow) !== JSON.stringify(newRow)) {
+        this.board[row] = newRow;
+        moved = true;
+      }
     }
 
-    // Add a random tile after the move
-    this.addRandomTile();
+    if (moved) {
+      this.addRandomTile();
+    }
   }
+
   moveUp() {
     // Check if the game is in progress
     if (this.status !== 'playing') {
