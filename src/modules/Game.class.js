@@ -35,13 +35,14 @@ class Game {
   }
 
   moveLeft() {
-    // Check if the game is in progress
     if (this.status !== 'playing') {
       return;
     }
 
-    // Move tiles left
+    let moved = false;
+
     for (let row = 0; row < this.size; row++) {
+      const originalRow = [...this.board[row]];
       const newRow = [];
 
       for (let col = 0; col < this.size; col++) {
@@ -50,7 +51,7 @@ class Game {
         }
       }
 
-      // Merge tiles
+      // Злиття плиток
       const mergedRow = [];
 
       for (let i = 0; i < newRow.length; i++) {
@@ -63,18 +64,24 @@ class Game {
         }
       }
 
-      // Fill the rest of the row with zeros
+      // Заповнення порожніх клітинок нулями
       while (mergedRow.length < this.size) {
         mergedRow.push(0);
       }
 
-      // Update the board
-      this.board[row] = mergedRow;
+      // Оновлюємо дошку тільки якщо змінилася
+      if (JSON.stringify(originalRow) !== JSON.stringify(mergedRow)) {
+        this.board[row] = mergedRow;
+        moved = true;
+      }
     }
 
-    // Add a random tile after the move
-    this.addRandomTile();
+    // Додаємо випадкову плитку лише якщо дошка змінилася
+    if (moved) {
+      this.addRandomTile();
+    }
   }
+
   moveRight() {
     if (this.status !== 'playing') {
       return;
@@ -83,13 +90,9 @@ class Game {
     let moved = false;
 
     for (let row = 0; row < this.size; row++) {
-      const originalRow = [...this.board[row]]; // копія для порівняння
+      const originalRow = [...this.board[row]];
       const reversedRow = [...originalRow].reverse();
-
-      // Фільтруємо ненульові
       const filtered = reversedRow.filter((val) => val !== 0);
-
-      // Об’єднання
       const merged = [];
 
       for (let i = 0; i < filtered.length; i++) {
@@ -102,15 +105,12 @@ class Game {
         }
       }
 
-      // Дозаповнення нулями
       while (merged.length < this.size) {
         merged.push(0);
       }
 
-      // Перевертаємо назад, щоб був "правий" напрямок
       const newRow = merged.reverse();
 
-      // Оновлюємо, якщо зміни були
       if (JSON.stringify(originalRow) !== JSON.stringify(newRow)) {
         this.board[row] = newRow;
         moved = true;
@@ -123,90 +123,95 @@ class Game {
   }
 
   moveUp() {
-    // Check if the game is in progress
     if (this.status !== 'playing') {
       return;
     }
 
-    // Move tiles up
+    let moved = false;
+
     for (let col = 0; col < this.size; col++) {
-      const column = [];
+      const originalColumn = [];
 
       for (let row = 0; row < this.size; row++) {
-        if (this.board[row][col] !== 0) {
-          column.push(this.board[row][col]);
-        }
+        originalColumn.push(this.board[row][col]);
       }
 
-      // Merge tiles
-      const mergedColumn = [];
+      const filtered = originalColumn.filter((val) => val !== 0);
+      const merged = [];
 
-      for (let i = 0; i < column.length; i++) {
-        if (column[i] === column[i + 1]) {
-          mergedColumn.push(column[i] * 2);
-          this.score += column[i] * 2;
+      for (let i = 0; i < filtered.length; i++) {
+        if (filtered[i] === filtered[i + 1]) {
+          merged.push(filtered[i] * 2);
+          this.score += filtered[i] * 2;
           i++;
         } else {
-          mergedColumn.push(column[i]);
+          merged.push(filtered[i]);
         }
       }
 
-      // Fill the rest of the column with zeros
-      while (mergedColumn.length < this.size) {
-        mergedColumn.push(0);
+      while (merged.length < this.size) {
+        merged.push(0);
       }
 
-      // Update the board
+      const movedColumn = merged;
+
       for (let row = 0; row < this.size; row++) {
-        this.board[row][col] = mergedColumn[row];
+        if (this.board[row][col] !== movedColumn[row]) {
+          moved = true;
+        }
+        this.board[row][col] = movedColumn[row];
       }
     }
 
-    // Add a random tile after the move
-    this.addRandomTile();
+    if (moved) {
+      this.addRandomTile();
+    }
   }
+
   moveDown() {
-    // Check if the game is in progress
     if (this.status !== 'playing') {
       return;
     }
 
-    // Move tiles down
+    let moved = false;
+
     for (let col = 0; col < this.size; col++) {
-      const column = [];
+      const originalColumn = [];
 
       for (let row = this.size - 1; row >= 0; row--) {
-        if (this.board[row][col] !== 0) {
-          column.push(this.board[row][col]);
-        }
+        originalColumn.push(this.board[row][col]);
       }
 
-      // Merge tiles
-      const mergedColumn = [];
+      const filtered = originalColumn.filter((val) => val !== 0);
+      const merged = [];
 
-      for (let i = 0; i < column.length; i++) {
-        if (column[i] === column[i + 1]) {
-          mergedColumn.push(column[i] * 2);
-          this.score += column[i] * 2;
+      for (let i = 0; i < filtered.length; i++) {
+        if (filtered[i] === filtered[i + 1]) {
+          merged.push(filtered[i] * 2);
+          this.score += filtered[i] * 2;
           i++;
         } else {
-          mergedColumn.push(column[i]);
+          merged.push(filtered[i]);
         }
       }
 
-      // Fill the rest of the column with zeros
-      while (mergedColumn.length < this.size) {
-        mergedColumn.push(0);
+      while (merged.length < this.size) {
+        merged.push(0);
       }
 
-      // Update the board
+      const movedColumn = merged.reverse();
+
       for (let row = this.size - 1; row >= 0; row--) {
-        this.board[row][col] = mergedColumn[this.size - 1 - row];
+        if (this.board[row][col] !== movedColumn[this.size - 1 - row]) {
+          moved = true;
+        }
+        this.board[row][col] = movedColumn[this.size - 1 - row];
       }
     }
 
-    // Add a random tile after the move
-    this.addRandomTile();
+    if (moved) {
+      this.addRandomTile();
+    }
   }
 
   /**
