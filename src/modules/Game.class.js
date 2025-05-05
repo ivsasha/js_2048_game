@@ -183,13 +183,14 @@ class Game {
       }
 
       const filtered = originalColumn.filter((val) => val !== 0);
+
       const merged = [];
 
       for (let i = 0; i < filtered.length; i++) {
         if (filtered[i] === filtered[i + 1]) {
           merged.push(filtered[i] * 2);
           this.score += filtered[i] * 2;
-          i++;
+          i++; // пропускаємо наступний
         } else {
           merged.push(filtered[i]);
         }
@@ -199,13 +200,13 @@ class Game {
         merged.push(0);
       }
 
-      const movedColumn = merged.reverse();
-
       for (let row = this.size - 1; row >= 0; row--) {
-        if (this.board[row][col] !== movedColumn[this.size - 1 - row]) {
+        const newValue = merged[this.size - 1 - row];
+
+        if (this.board[row][col] !== newValue) {
           moved = true;
+          this.board[row][col] = newValue;
         }
-        this.board[row][col] = movedColumn[this.size - 1 - row];
       }
     }
 
